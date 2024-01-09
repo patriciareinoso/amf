@@ -69,7 +69,7 @@ type AmfUe struct {
 	// Mutex sync.Mutex `json:"mutex,omitempty" yaml:"mutex" bson:"mutex,omitempty"`
 	Mutex sync.Mutex `json:"-"`
 	/* the AMF which serving this AmfUe now */
-	servingAMF *AMFContext `json:"servingAMF,omitempty"` // never nil
+	ServingAMF *AMFContext `json:"servingAMF,omitempty"` // never nil
 
 	/* Gmm State */
 	State map[models.AccessType]*fsm.State `json:"-"`
@@ -147,9 +147,9 @@ type AmfUe struct {
 	SmContextList sync.Map `json:"-"` // map[int32]*SmContext, pdu session id as key
 	/* Related Context*/
 	//RanUe map[models.AccessType]*RanUe `json:"ranUe,omitempty" yaml:"ranUe" bson:"ranUe,omitempty"`
-	RanUe map[models.AccessType]*RanUe `json:"ranUe, omitEmpty"`
+	RanUe map[models.AccessType]*RanUe `json:"ranUe,omitEmpty"`
 	/* other */
-	onGoing                       map[models.AccessType]*OnGoing        `json:"onGoing,omitempty"`
+	OnGoing                       map[models.AccessType]*OnGoing        `json:"onGoing,omitempty"`
 	UeRadioCapability             string                                `json:"ueRadioCapability,omitempty"` // OCTET string
 	Capability5GMM                nasType.Capability5GMM                `json:"capability5GMM,omitempty"`
 	ConfigurationUpdateIndication nasType.ConfigurationUpdateIndication `json:"configurationUpdateIndication,omitempty"`
@@ -444,7 +444,7 @@ type NGRANCGI struct {
 }
 
 func (ue *AmfUe) init() {
-	ue.servingAMF = AMF_Self()
+	ue.ServingAMF = AMF_Self()
 	ue.State = make(map[models.AccessType]*fsm.State)
 	ue.State[models.AccessType__3_GPP_ACCESS] = fsm.NewState(Deregistered)
 	ue.State[models.AccessType_NON_3_GPP_ACCESS] = fsm.NewState(Deregistered)
@@ -455,19 +455,15 @@ func (ue *AmfUe) init() {
 	ue.AllowedNssai = make(map[models.AccessType][]models.AllowedSnssai)
 	ue.N1N2MessageIDGenerator = idgenerator.NewGenerator(1, 2147483647)
 	ue.N1N2MessageSubscribeIDGenerator = idgenerator.NewGenerator(1, 2147483647)
-	ue.onGoing = make(map[models.AccessType]*OnGoing)
-	ue.onGoing[models.AccessType_NON_3_GPP_ACCESS] = new(OnGoing)
-	ue.onGoing[models.AccessType_NON_3_GPP_ACCESS].Procedure = OnGoingProcedureNothing
-	ue.onGoing[models.AccessType__3_GPP_ACCESS] = new(OnGoing)
-	ue.onGoing[models.AccessType__3_GPP_ACCESS].Procedure = OnGoingProcedureNothing
+	ue.OnGoing = make(map[models.AccessType]*OnGoing)
+	ue.OnGoing[models.AccessType_NON_3_GPP_ACCESS] = new(OnGoing)
+	ue.OnGoing[models.AccessType_NON_3_GPP_ACCESS].Procedure = OnGoingProcedureNothing
+	ue.OnGoing[models.AccessType__3_GPP_ACCESS] = new(OnGoing)
+	ue.OnGoing[models.AccessType__3_GPP_ACCESS].Procedure = OnGoingProcedureNothing
 	ue.ReleaseCause = make(map[models.AccessType]*CauseAll)
 	ue.AmfInstanceName = os.Getenv("HOSTNAME")
 	ue.AmfInstanceIp = os.Getenv("POD_IP")
 	// ue.TransientInfo = make(chan AmfUeTransientInfo, 10)
-}
-
-func (ue *AmfUe) ServingAMF() *AMFContext {
-	return ue.servingAMF
 }
 
 func (ue *AmfUe) CmConnect(anType models.AccessType) bool {
@@ -769,7 +765,7 @@ func (ue *AmfUe) ClearRegistrationRequestData(accessType models.AccessType) {
 		ue.RanUe[accessType].RecvdInitialContextSetupResponse = false
 	}
 	ue.RetransmissionOfInitialNASMsg = false
-	ue.onGoing[accessType].Procedure = OnGoingProcedureNothing
+	ue.OnGoing[accessType].Procedure = OnGoingProcedureNothing
 }
 
 // this method called when we are reusing the same uecontext during the registration procedure
@@ -786,14 +782,14 @@ func (ue *AmfUe) ClearRegistrationData() {
 }
 
 func (ue *AmfUe) SetOnGoing(anType models.AccessType, onGoing *OnGoing) {
-	prevOnGoing := ue.onGoing[anType]
-	ue.onGoing[anType] = onGoing
+	prevOnGoing := ue.OnGoing[anType]
+	ue.OnGoing[anType] = onGoing
 	ue.GmmLog.Debugf("OnGoing[%s]->[%s] PPI[%d]->[%d]", prevOnGoing.Procedure, onGoing.Procedure,
 		prevOnGoing.Ppi, onGoing.Ppi)
 }
 
-func (ue *AmfUe) OnGoing(anType models.AccessType) OnGoing {
-	return *ue.onGoing[anType]
+func (ue *AmfUe) GetOnGoing(anType models.AccessType) OnGoing {
+	return *ue.OnGoing[anType]
 }
 
 func (ue *AmfUe) RemoveAmPolicyAssociation() {
@@ -1056,7 +1052,7 @@ func (ueContext *AmfUe) PublishUeCtxtInfo() {
 
 	// Populate kafka sm ctxt struct
 	kafkaSmCtxt.Imsi = ueContext.Supi
-	kafkaSmCtxt.AmfId = ueContext.servingAMF.NfId
+	kafkaSmCtxt.AmfId = ueContext.ServingAMF.NfId
 	kafkaSmCtxt.Guti = ueContext.Guti
 	kafkaSmCtxt.Tmsi = ueContext.Tmsi
 	kafkaSmCtxt.AmfIp = ueContext.AmfInstanceIp

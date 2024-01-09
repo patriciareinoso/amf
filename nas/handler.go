@@ -49,12 +49,11 @@ func HandleNAS(ue *context.RanUe, procedureCode int64, nasPdu []byte) {
 					rsp.RedirectId = id.PodIp
 					rsp.GnbId = ue.Ran.GnbId
 					rsp.Msg = ue.SctplbMsg
-					if ue != nil && ue.AmfUe != nil {
+					if ue.AmfUe != nil {
 						ue.AmfUe.Remove()
-					} else if ue != nil {
-						if err := ue.Remove(); err != nil {
-							logger.NasLog.Errorf("Error removing ue: %v", err)
-						}
+					}
+					if err := ue.Remove(); err != nil {
+						logger.NasLog.Errorf("Error removing ue: %v", err)
 					}
 					ue.Ran.Amf2RanMsgChan <- rsp
 					return
