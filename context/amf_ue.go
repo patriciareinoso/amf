@@ -221,7 +221,7 @@ type AmfUe struct {
 func (ue *AmfUe) MarshalJSON() ([]byte, error) {
 	type Alias AmfUe
 	stateVal := make(map[models.AccessType]string)
-	smCtxListVal := make(map[string]SmContext)
+	smCtxListVal := make(map[string]*SmContext)
 	var ranUeNgapIDVal, amfUeNgapIDVal int64
 	var gnbId string
 	if ue.RanUe != nil && ue.RanUe[models.AccessType__3_GPP_ACCESS] != nil {
@@ -269,7 +269,7 @@ func (ue *AmfUe) MarshalJSON() ([]byte, error) {
 		newSmCtx.SetNsInstance(smContext.NsInstance())
 
 		pduSessIdStr := strconv.FormatInt(int64(pduSessId), 10)
-		smCtxListVal[pduSessIdStr] = *newSmCtx
+		smCtxListVal[pduSessIdStr] = newSmCtx
 		return true
 	})
 
@@ -329,7 +329,7 @@ func (ue *AmfUe) UnmarshalJSON(data []byte) error {
 		if err != nil {
 			logger.ContextLog.Errorf("Error parsing int from %s: %v", key, err)
 		}
-		ue.StoreSmContext(int32(keyVal), &val)
+		ue.StoreSmContext(int32(keyVal), val)
 	}
 	sqn := uint8(aux.ULCount & 0x000000ff)
 	overflow := uint16((aux.ULCount & 0x00ffff00) >> 8)
@@ -786,10 +786,6 @@ func (ue *AmfUe) SetOnGoing(anType models.AccessType, onGoing *OnGoing) {
 	ue.OnGoing[anType] = onGoing
 	ue.GmmLog.Debugf("OnGoing[%s]->[%s] PPI[%d]->[%d]", prevOnGoing.Procedure, onGoing.Procedure,
 		prevOnGoing.Ppi, onGoing.Ppi)
-}
-
-func (ue *AmfUe) GetOnGoing(anType models.AccessType) OnGoing {
-	return *ue.OnGoing[anType]
 }
 
 func (ue *AmfUe) RemoveAmPolicyAssociation() {

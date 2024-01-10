@@ -173,7 +173,6 @@ linters-settings:
     # enable all analyzers
     enable-all: true
     disable:
-      - copylocks
       - fieldalignment
   depguard:
     list-type: blacklist

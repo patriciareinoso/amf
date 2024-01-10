@@ -23,7 +23,7 @@ var dbMutex sync.Mutex
 
 type CustomFieldsAmfUe struct {
 	State       map[models.AccessType]string `json:"state"`
-	SmCtxList   map[string]SmContext         `json:"smCtxList"`
+	SmCtxList   map[string]*SmContext        `json:"smCtxList"`
 	N1N2Message N1N2Message                  `json:"n1n2Msg"`
 	ULCount     uint32                       `json:"ulCount"`
 	DLCount     uint32                       `json:"dlCount"`

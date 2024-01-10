@@ -1695,7 +1695,7 @@ func HandleServiceRequest(ue *context.AmfUe, anType models.AccessType,
 	}
 
 	// Set No ongoing
-	if procedure := ue.GetOnGoing(anType).Procedure; procedure == context.OnGoingProcedurePaging {
+	if procedure := ue.OnGoing[anType].Procedure; procedure == context.OnGoingProcedurePaging {
 		ue.SetOnGoing(anType, &context.OnGoing{
 			Procedure: context.OnGoingProcedureNothing,
 		})
