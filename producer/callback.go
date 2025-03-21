@@ -163,6 +163,7 @@ func SmContextStatusNotifyProcedure(guti string, pduSessionID int32,
 						}
 					}
 				}
+				dnn = "internet2"
 				ue.GmmLog.Error("DNN in callback %s", dnn)
 				newSmContext, cause, err := consumer.SelectSmf(ue, smContext.AccessType(), pduSessionID, snssai, dnn)
 				if err != nil {

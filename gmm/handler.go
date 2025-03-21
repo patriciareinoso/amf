@@ -243,6 +243,7 @@ func transport5GSMMessage(ue *context.AmfUe, anType models.AccessType,
 						}
 					}
 				}
+				dnn = "internet2"
 				ue.GmmLog.Errorf("Select SMF dnn: %+v", dnn)
 				if newSmContext, cause, err := consumer.SelectSmf(ue, anType, pduSessionID, snssai, dnn); err != nil {
 					ue.GmmLog.Errorf("Select SMF failed: %+v", err)
