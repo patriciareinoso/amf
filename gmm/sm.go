@@ -78,6 +78,7 @@ func Registered(state *fsm.State, event fsm.EventType, args fsm.ArgsType) {
 		accessType := args[ArgAccessType].(models.AccessType)
 		amfUe.ClearRegistrationRequestData(accessType)
 		amfUe.GmmLog.Debugln("EntryEvent at GMM State[Registered]")
+		amfUe.GmmLog.Infof("Registered args %v", args)
 		// store context in DB. Registration procedure is complete.
 		amfUe.PublishUeCtxtInfo()
 		context.StoreContextInDB(amfUe)

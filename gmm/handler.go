@@ -49,7 +49,7 @@ const (
 func HandleULNASTransport(ue *context.AmfUe, anType models.AccessType,
 	ulNasTransport *nasMessage.ULNASTransport,
 ) error {
-	ue.GmmLog.Infoln("Handle UL NAS Transport")
+	ue.GmmLog.Infof("Handle UL NAS Transport %v", ulNasTransport)
 
 	if ue.MacFailed {
 		return fmt.Errorf("NAS message integrity check failed")
@@ -91,7 +91,7 @@ func transport5GSMMessage(ue *context.AmfUe, anType models.AccessType,
 ) error {
 	var pduSessionID int32
 
-	ue.GmmLog.Info("Transport 5GSM Message to SMF")
+	ue.GmmLog.Infof("Transport 5GSM Message to SMF %v", ulNasTransport)
 
 	smMessage := ulNasTransport.PayloadContainer.GetPayloadContainerContents()
 
@@ -221,23 +221,23 @@ func transport5GSMMessage(ue *context.AmfUe, anType models.AccessType,
 				ue.GmmLog.Error("Setting DNN 1 in handler")
 				if ulNasTransport.DNN != nil {
 					dnn = string(ulNasTransport.DNN.GetDNN())
-					ue.GmmLog.Error("Setting DNN 2 in handler %v", dnn)
+					ue.GmmLog.Errorf("Setting DNN 2 in handler %v", dnn)
 				} else {
 					// if user's subscription context obtained from UDM does not contain the default DNN for the,
 					// S-NSSAI, the AMF shall use a locally configured DNN as the DNN
 					dnn = ue.ServingAMF.SupportDnnLists[0]
-					ue.GmmLog.Error("Setting DNN 3 in handler %v", dnn)
+					ue.GmmLog.Errorf("Setting DNN 3 in handler %v", dnn)
 					if ue.SmfSelectionData != nil {
 						snssaiStr := util.SnssaiModelsToHex(snssai)
-						ue.GmmLog.Error("Setting DNN 4 in handler snssaiStr %v", snssaiStr)
+						ue.GmmLog.Errorf("Setting DNN 4 in handler snssaiStr %v", snssaiStr)
 						if snssaiInfo, ok := ue.SmfSelectionData.SubscribedSnssaiInfos[snssaiStr]; ok {
-							ue.GmmLog.Error("Setting DNN 5 in handler snssaiInfo %v", snssaiInfo)
+							ue.GmmLog.Errorf("Setting DNN 5 in handler snssaiInfo %v", snssaiInfo)
 							for _, dnnInfo := range snssaiInfo.DnnInfos {
-								ue.GmmLog.Error("Setting DNN 6 in handler dnnInfo %v", dnnInfo)
+								ue.GmmLog.Errorf("Setting DNN 6 in handler dnnInfo %v", dnnInfo)
 								if dnnInfo.DefaultDnnIndicator {
 
 									dnn = dnnInfo.Dnn
-									ue.GmmLog.Error("Setting DNN 7 in handler dnn %v", dnn)
+									ue.GmmLog.Errorf("Setting DNN 7 in handler dnn %v", dnn)
 								}
 							}
 						}

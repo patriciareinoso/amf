@@ -112,7 +112,7 @@ func DispatchMsg(amfUe *context.AmfUe, transInfo context.NasMsg) {
 		amfUe.NASLog.Errorln(err)
 		return
 	}
-
+	amfUe.NASLog.Infof("handle Nas Message %v", msg)
 	if err := Dispatch(amfUe, transInfo.AnType, transInfo.ProcedureCode, msg); err != nil {
 		amfUe.NASLog.Errorf("handle NAS Error: %v", err)
 	}
