@@ -218,26 +218,32 @@ func transport5GSMMessage(ue *context.AmfUe, anType models.AccessType,
 						return errors.New("ue doesn't have allowedNssai")
 					}
 				}
-
+				ue.GmmLog.Error("Setting DNN 1 in handler")
 				if ulNasTransport.DNN != nil {
 					dnn = string(ulNasTransport.DNN.GetDNN())
+					ue.GmmLog.Error("Setting DNN 2 in handler %v", dnn)
 				} else {
 					// if user's subscription context obtained from UDM does not contain the default DNN for the,
 					// S-NSSAI, the AMF shall use a locally configured DNN as the DNN
 					dnn = ue.ServingAMF.SupportDnnLists[0]
-
+					ue.GmmLog.Error("Setting DNN 3 in handler %v", dnn)
 					if ue.SmfSelectionData != nil {
 						snssaiStr := util.SnssaiModelsToHex(snssai)
+						ue.GmmLog.Error("Setting DNN 4 in handler snssaiStr %v", snssaiStr)
 						if snssaiInfo, ok := ue.SmfSelectionData.SubscribedSnssaiInfos[snssaiStr]; ok {
+							ue.GmmLog.Error("Setting DNN 5 in handler snssaiInfo %v", snssaiInfo)
 							for _, dnnInfo := range snssaiInfo.DnnInfos {
+								ue.GmmLog.Error("Setting DNN 6 in handler dnnInfo %v", dnnInfo)
 								if dnnInfo.DefaultDnnIndicator {
+
 									dnn = dnnInfo.Dnn
+									ue.GmmLog.Error("Setting DNN 7 in handler dnn %v", dnn)
 								}
 							}
 						}
 					}
 				}
-
+				ue.GmmLog.Errorf("Select SMF dnn: %+v", dnn)
 				if newSmContext, cause, err := consumer.SelectSmf(ue, anType, pduSessionID, snssai, dnn); err != nil {
 					ue.GmmLog.Errorf("Select SMF failed: %+v", err)
 					gmm_message.SendDLNASTransport(ue.RanUe[anType], nasMessage.PayloadContainerTypeN1SMInfo,

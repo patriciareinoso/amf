@@ -140,23 +140,30 @@ func SmContextStatusNotifyProcedure(guti string, pduSessionID int32,
 
 				if smContext.ULNASTransport().DNN != nil {
 					dnn = string(smContext.ULNASTransport().DNN.GetDNN())
+					ue.GmmLog.Error("Setting DNN 1 in callback")
 				} else {
+					ue.GmmLog.Error("Setting DNN 2 in callback")
 					if ue.SmfSelectionData != nil {
 						snssaiStr := util.SnssaiModelsToHex(snssai)
+						ue.GmmLog.Error("Setting DNN 3 in callback snssaiStr %v", snssaiStr)
 						if snssaiInfo, ok := ue.SmfSelectionData.SubscribedSnssaiInfos[snssaiStr]; ok {
+							ue.GmmLog.Error("Setting DNN 4 in callback snssaiInfo %v", snssaiInfo)
 							for _, dnnInfo := range snssaiInfo.DnnInfos {
+								ue.GmmLog.Error("Setting DNN 5 in callback dnnInfo %v", dnnInfo)
 								if dnnInfo.DefaultDnnIndicator {
 									dnn = dnnInfo.Dnn
+									ue.GmmLog.Error("Setting DNN 6 in callback dnn %v", dnn)
 								}
 							}
 						} else {
 							// user's subscription context obtained from UDM does not contain the default DNN for the,
 							// S-NSSAI, the AMF shall use a locally configured DNN as the DNN
 							dnn = "internet"
+							ue.GmmLog.Error("Setting DNN 3 in callback")
 						}
 					}
 				}
-
+				ue.GmmLog.Error("DNN in callback %s", dnn)
 				newSmContext, cause, err := consumer.SelectSmf(ue, smContext.AccessType(), pduSessionID, snssai, dnn)
 				if err != nil {
 					logger.CallbackLog.Error(err)
